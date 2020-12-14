@@ -1,0 +1,69 @@
+service: sba-cloud-fsd
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: java8
+  timeout: 25
+  region: us-east-2
+  iamRoleStatements:
+   - Effect: "Allow"
+     Action:
+       - "dynamodb:*"
+     Resource: "*"
+
+package:
+  artifact: target/spring-cloud-function-example-0.0.1-SNAPSHOT-aws.jar
+
+resources:
+  Resources:
+    userInfoTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: user_info
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
+functions:
+  hello:
+    handler: com.techprimers.serverless.AWSLambdaHandler
+    environment:
+      FUNCTION_NAME: hello
+    events:
+    - http:
+        path: /greet/{name}
+        method: get
+
+  bye:
+    handler: com.techprimers.serverless.AWSLambdaHandler
+    environment:
+      FUNCTION_NAME: bye
+    events:
+    - http:
+        path: /bye/{name}
+        method: delete
+
+  registerUser:
+    handler: com.techprimers.serverless.AWSLambdaHandler
+    environment:
+      FUNCTION_NAME: registerUser
+    events:
+    - http:
+        path: /register
+        method: post
+
+  loginUser:
+    handler: com.techprimers.serverless.AWSLambdaHandler
+    environment:
+      FUNCTION_NAME: loginUser
+    events:
+    - http:
+        path: /login
+        method: post
